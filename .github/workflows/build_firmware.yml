@@ -1,8 +1,11 @@
-name: Build STM32
+name: Build Firmware
 
 on:
   workflow_call:
     inputs:
+      platform:
+        required: true
+        type: string
       board:
         required: true
         type: string
@@ -20,20 +23,25 @@ jobs:
         run: echo "long=$(./bin/buildinfo.py long)" >> $GITHUB_OUTPUT
         id: version
 
-      - name: Build STM32WL
+      - name: Build ${{ inputs.platform }}
         id: build
         uses: meshtastic/gh-action-firmware@main
+        env:
+          generic_plat: >-
+            ${{ startsWith(inputs.platform, 'esp32') && 'esp32' || startsWith(inputs.platform, 'nrf52') && 'nrf52' || inputs.platform }}
         with:
-          pio_platform: stm32wl
+          pio_platform: ${{ env.generic_plat }}
           pio_env: ${{ inputs.board }}
           pio_target: build
 
       - name: Store binaries as an artifact
         uses: actions/upload-artifact@v4
         with:
-          name: firmware-stm32-${{ inputs.board }}-${{ steps.version.outputs.long }}.zip
+          name: firmware-${{ inputs.platform }}-${{ inputs.board }}-${{ steps.version.outputs.long }}.zip
           overwrite: true
           path: |
+            release/*.uf2
             release/*.hex
             release/*.bin
             release/*.elf
+            release/*-ota.zip
