@@ -13,6 +13,7 @@
 // YAML paths are relative to `meshtastic/available.d`
 inline const std::unordered_map<std::string, std::string> configProducts = {
     {"MESHTOAD", "lora-usb-meshtoad-e22.yaml"},
+    {"MESHFROG", "lora-usb-meshfrog-e80.yaml"},
     {"MESHSTICK", "lora-meshstick-1262.yaml"},
     {"MESHADV-PI", "lora-MeshAdv-900M30S.yaml"},
     {"MeshAdv Mini", "lora-MeshAdv-Mini-900M22S.yaml"},

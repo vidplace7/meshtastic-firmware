@@ -1,0 +1,38 @@
+Lora:
+  Module: lr1121
+  CS: 0
+  IRQ: 6
+  Reset: 2
+  Busy: 4
+  DIO3_TCXO_VOLTAGE: 1.8
+  spidev: ch341
+  USB_PID: 0x5512
+  USB_VID: 0x1A86
+  # Optional: Set the serial number for multi-radio support
+  # USB_Serialnum: 13374201
+
+  rfswitch_table:
+    pins:
+      - DIO5
+      - DIO6
+    MODE_STBY:
+      - LOW
+      - LOW
+    MODE_RX:
+      - HIGH
+      - LOW
+    MODE_TX:
+      - HIGH
+      - HIGH
+    MODE_TX_HP:
+      - LOW
+      - HIGH
+    MODE_TX_HF:
+      - LOW
+      - LOW
+    MODE_GNSS:
+      - LOW
+      - LOW
+    MODE_WIFI:
+      - LOW
+      - LOW
