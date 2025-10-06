@@ -79,7 +79,6 @@ jobs:
         check: ${{ fromJson(needs.setup.outputs.check) }}
 
     runs-on: ubuntu-latest
-    if: ${{ github.event_name != 'workflow_dispatch' && github.repository == 'meshtastic/firmware' }}
     steps:
       - uses: actions/checkout@v5
       - name: Build base
