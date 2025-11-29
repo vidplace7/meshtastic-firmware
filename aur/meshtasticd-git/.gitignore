@@ -1,0 +1,4 @@
+pkg/
+src/
+firmware/
+meshtasticd-*.tar.zst

@@ -1,0 +1,37 @@
+# Maintainer: Austin Lane <vidplace7@gmail.com>
+pkgname=meshtasticd-web-bin
+pkgver=2.6.7
+pkgrel=1
+pkgdesc="Web interface for the Meshtastic daemon"
+arch=('any')
+url="https://meshtastic.org/"
+license=('GPL3')
+optdepends=(
+  'meshtasticd'
+)
+makedepends=(
+  'gzip'
+)
+provides=('meshtasticd-web')
+source=(
+  "${pkgname}-${pkgver}.tar::https://github.com/meshtastic/web/releases/download/v${pkgver}/build.tar"
+)
+noextract=("${pkgname}-${pkgver}.tar")
+# Update with 'updpkgsums' command
+sha256sums=('a34f4360a0486543a698de20de533557492e763ab459fc27fcea95d0495144ed')
+
+prepare() {
+  mkdir -p "${srcdir}/meshtasticd-web"
+  echo "Extracting web release (tar)"
+  bsdtar -xf "${pkgname}-${pkgver}.tar" -C "${srcdir}/meshtasticd-web"
+  echo "Extracting web files (gzip)"
+  gzip -dr -f "${srcdir}/meshtasticd-web"
+}
+
+package() {
+  # Setup dirs
+  install -d "${pkgdir}/usr/share/meshtasticd/web"
+  install -d "${pkgdir}/etc/meshtasticd/ssl"
+  # Install web files
+  cp -r ${srcdir}/meshtasticd-web/* "${pkgdir}/usr/share/meshtasticd/web"
+}
