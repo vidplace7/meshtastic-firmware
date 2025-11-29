@@ -43,7 +43,7 @@ jobs:
         shell: bash
         run: |
           sudo apt-get update -y --fix-missing
-          sudo apt-get install -y dput
+          sudo apt-get install -y dput openssh-client
 
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@v6
@@ -68,7 +68,27 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -lah
 
-      - name: Publish with dput
-        if: ${{ github.event_name != 'pull_request_target' && github.event_name != 'pull_request' }}
+      - name: Setup dput config
+        env:
+          ppa_login: vidplace7
         run: |
-          dput ${{ inputs.ppa_repo }} meshtasticd_${{ steps.version.outputs.deb }}~${{ inputs.series }}_source.changes
+          sudo tee /etc/meshtastic-dput.cf >/dev/null <<EOF
+          [ppa]
+          fqdn                    = ppa.launchpad.net
+          method                  = ftp
+          incoming                = ~%(ppa)s
+          login                   = anonymous
+
+          [ssh-ppa]
+          fqdn                    = ppa.launchpad.net
+          method                  = sftp
+          incoming                = ~%(ssh-ppa)s
+          login                   = ${{ env.ppa_login }}
+          EOF
+
+      - name: Publish with dput (sftp)
+        if: ${{ github.event_name != 'pull_request_target' && github.event_name != 'pull_request' }}
+        run: >
+          dput -c /etc/meshtastic-dput.cf
+          ssh-${{ inputs.ppa_repo }}
+          meshtasticd_${{ steps.version.outputs.deb }}~${{ inputs.series }}_source.changes
