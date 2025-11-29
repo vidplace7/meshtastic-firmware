@@ -1,0 +1,4 @@
+pkg/
+src/
+meshtasticd*.tar.gz
+meshtasticd-*.tar.zst

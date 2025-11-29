@@ -1,0 +1,89 @@
+# Maintainer: Austin Lane <vidplace7@gmail.com>
+pkgname=meshtasticd
+pkgver=2.7.15.567b8ea
+pkgrel=1
+pkgdesc="Meshtastic daemon for Linux-native devices (portduino-based)"
+arch=('x86_64' 'i686' 'aarch64' 'armv7h' 'riscv64')
+url="https://meshtastic.org/"
+license=('GPL3')
+depends=(
+  'i2c-tools'
+  'libgpiod'
+  'yaml-cpp'
+  'ulfius'
+  'libuv'
+  'libusb'
+  'openssl'
+  'orcania'
+  'yder'
+  'systemd-libs'
+  'bluez-libs'
+  'libxkbcommon'
+  'libinput'
+  'libx11'
+)
+makedepends=(
+  'platformio-core'
+  'python-pip'
+  'python-grpcio-tools'
+  'gcc'
+  'cmake'
+  'pkgconf'
+  'protobuf'
+  'pcre2'
+  'git'
+)
+provides=('meshtasticd')
+conflicts=('meshtasticd-bin')
+source=(
+  "meshtasticd-${pkgver}.tar.gz::https://github.com/meshtastic/firmware/archive/refs/tags/v${pkgver}.tar.gz"
+  "meshtasticd.sysusers"
+)
+sha256sums=(
+  'SKIP'
+  'SKIP'
+)  # run updpkgsums to fill
+backup=('etc/meshtasticd/config.yaml')
+install=${pkgname}.install
+
+prepare() {
+  cd "firmware-${pkgver}"
+}
+
+# pkgver() {
+#   cd "firmware-${pkgver}"
+#   python3 bin/buildinfo.py long
+# }
+
+build() {
+  cd "firmware-${pkgver}"
+  PLATFORMIO_LIBDEPS_DIR=pio/libdeps\
+  PLATFORMIO_PACKAGES_DIR=pio/packages\
+  PLATFORMIO_CORE_DIR=pio/core\
+  platformio run -e native-tft
+}
+
+package() {
+  cd "firmware-${pkgver}"
+
+  # binary
+  install -Dm755 ".pio/build/native-tft/program" "${pkgdir}/usr/bin/meshtasticd"
+
+  # sysusers: create meshtastic user/group on install
+  install -Dm644 "${srcdir}/meshtasticd.sysusers" \
+    "${pkgdir}/usr/lib/sysusers.d/meshtasticd.conf"
+
+  # systemd service
+  install -Dm644 "bin/meshtasticd.service" \
+    "${pkgdir}/usr/lib/systemd/system/meshtasticd.service"
+
+  # udev rules
+  install -Dm644 "bin/99-meshtasticd-udev.rules" \
+    "${pkgdir}/usr/lib/udev/rules.d/99-meshtasticd.rules"
+  
+  # configs
+  install -d "${pkgdir}/etc/meshtasticd/config.d"
+  install -d "${pkgdir}/etc/meshtasticd/available.d"
+  cp -r bin/config.d/* "${pkgdir}/etc/meshtasticd/available.d"
+  install -Dm644 "bin/config-dist.yaml" "${pkgdir}/etc/meshtasticd/config.yaml"
+}

@@ -1,0 +1,11 @@
+post_install() {
+  # Ensure configs are owned by the meshtasticd user
+  if [ -d /etc/meshtasticd ]; then
+    chown -R meshtasticd:meshtasticd /etc/meshtasticd
+  fi
+}
+
+post_upgrade() {
+  # Re-apply ownership in case new files were added
+  post_install
+}
